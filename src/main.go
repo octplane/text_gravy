@@ -1,11 +1,14 @@
 package main
 
-import "code.google.com/p/flickgo"
-import "net/http"
-import "fmt"
-import "flag"
-import "os"
-import "log"
+import (
+	"code.google.com/p/flickgo"
+	"flag"
+	"fmt"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
+	"os"
+)
 
 var (
 	apiKey string
@@ -16,6 +19,14 @@ var (
 func init() {
 	flag.StringVar(&apiKey, "api_key", "", "Api Key")
 	flag.StringVar(&secret, "secret", "", "Secret Key")
+}
+
+func KittensHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"kittens": [
+    {"id": 1, "name": "Bobby", "picture": "http://placekitten.com/200/200"},
+    {"id": 2, "name": "Wally", "picture": "http://placekitten.com/200/200"}
+  ]}`))
 }
 
 func main() {
@@ -44,6 +55,11 @@ func main() {
 	fmt.Printf("%s\n", sresponse.Photos[0].URL("n"))
 
 	log.Println("Starting Server")
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/v1/kittens", KittensHandler).Methods("GET")
+	http.Handle("/api/", r)
+
 	http.Handle("/", http.FileServer(http.Dir("./public/")))
 
 	log.Println("Listening on 8080")
