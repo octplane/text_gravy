@@ -16,8 +16,14 @@
 
 <script type="text/x-handlebars" data-template-name="index">
 
+<h3 class="query">{{query}}</h3>
+<form {{action search on="submit"}} class="form-inline">
+  {{input type="text" value=q}}
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
 <ul class="thumbnails">
-{{#each controller}}
+{{#each result}}
 
   <li class="span3">
     <div class="thumbnail">

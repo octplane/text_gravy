@@ -1,9 +1,10 @@
 (function() {
 
+  var NS = 'api/v1';
   var App = Ember.Application.create();
 
   App.ApplicationAdapter = DS.RESTAdapter.extend({
-    namespace: 'api/v1'
+    namespace: NS
   });
 
   var attr = DS.attr('string');
@@ -13,18 +14,23 @@
     picture: attr
   });
 
+  App.Router.map(function() {
+    this.resource('index', {path: '/search/:query'})
+  })
+
+
   App.IndexRoute = Ember.Route.extend({
-    model: function() {
-      return this.store.find('kitten');
+    model: function(params) {
+      debugger;
+      return {query: params.query, result: this.store.find('kitten',{ query: params.query })};
+    },
+    actions: {
+      search: function() {
+        debugger;
+        this.controller.transitionToRoute('index', {query: this.controller.get("q")});
+      }
     }
   });
-
-
-  // App.IndexRoute = Ember.Route.extend({
-  //   model: function() {
-  //     return ['red', 'yellow', 'blue'];
-  //   }
-  // });
 
 
 })();
