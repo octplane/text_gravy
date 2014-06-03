@@ -50,6 +50,9 @@
 
 <script type="text/x-handlebars" data-template-name="photo">
 <h1>{{photo.title}}</h1>
+<div {{bind-attr id="photo.id" }} class="large">
+<img {{bind-attr src="photo.large"}}/>
+</div>
 </script>
 
 <script src="js/lib/jquery.js"></script>

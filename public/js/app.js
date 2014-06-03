@@ -12,7 +12,8 @@
 
   App.Photo = DS.Model.extend({
     title: attr,
-    thumb: attr
+    thumb: attr,
+    large: attr
   });
 
   App.Router.map(function() {
@@ -24,13 +25,6 @@
   App.PhotoRoute = Ember.Route.extend({
     model: function(params) {
       return {photo: this.store.find('photo', params.photo_id)};
-    },
-
-    actions: {
-      focus: function(pocus) {
-
-        debugger;
-      }
     }
   });
 
