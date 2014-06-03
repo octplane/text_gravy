@@ -5,6 +5,13 @@
   <title>Ember.js + Go == ♥</title>
   <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 </head>
+<style>
+.thumbnail {
+  width: 320px;
+  height: 360px;
+  text-align: center;
+}
+</style>
 <body>
 
 
@@ -23,20 +30,26 @@
 </form>
 
 <ul class="thumbnails">
-{{#each result}}
+{{#each photo in result}}
 
-  <li class="span3">
-    <div class="thumbnail">
-      <img {{bind-attr src="picture"}}/>
+  <li class="span4">
+    {{#link-to 'photo' photo.id}}
+    <div {{bind-attr id="photo.id" }} class="thumbnail">
+      <img {{bind-attr src="photo.thumb"}}/>
       <div class="caption">
-        <h3>{{name}}</h3>
+        {{photo.title}}
       </div>
     </div>
+    {{/link-to}}
   </li>
 
 {{/each}}
 </ul>
 
+</script>
+
+<script type="text/x-handlebars" data-template-name="photo">
+<h1>{{photo.title}}</h1>
 </script>
 
 <script src="js/lib/jquery.js"></script>

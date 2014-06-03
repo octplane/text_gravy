@@ -3,33 +3,52 @@
   var NS = 'api/v1';
   var App = Ember.Application.create();
 
+
   App.ApplicationAdapter = DS.RESTAdapter.extend({
     namespace: NS
   });
 
   var attr = DS.attr('string');
 
-  App.Kitten = DS.Model.extend({
-    name: attr,
-    picture: attr
+  App.Photo = DS.Model.extend({
+    title: attr,
+    thumb: attr
   });
 
   App.Router.map(function() {
     this.resource('index', {path: '/search/:query'})
+    this.resource('photo', {path: '/photo/:photo_id'})
+
   })
+
+  App.PhotoRoute = Ember.Route.extend({
+    model: function(params) {
+      return {photo: this.store.find('photo', params.photo_id)};
+    },
+
+    actions: {
+      focus: function(pocus) {
+
+        debugger;
+      }
+    }
+  });
 
 
   App.IndexRoute = Ember.Route.extend({
     model: function(params) {
-      debugger;
-      return {query: params.query, result: this.store.find('kitten',{ query: params.query })};
+      return {query: params.query, result: this.store.find('photo',{ query: params.query })};
     },
     actions: {
       search: function() {
-        debugger;
-        this.controller.transitionToRoute('index', {query: this.controller.get("q")});
+        this.controller.transitionToRoute('/search/'+ this.controller.get("q"));
       }
     }
+  });
+
+  // Define child view
+  App.PhotoInfoView = Ember.View.extend({
+    templateName: 'photo-info'
   });
 
 
