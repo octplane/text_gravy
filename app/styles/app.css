@@ -1,0 +1,9 @@
+html, body {
+  margin: 20px;
+}
+
+.thumbnail {
+  width: 320px;
+  height: 360px;
+  text-align: center;
+}

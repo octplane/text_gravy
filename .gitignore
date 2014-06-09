@@ -22,3 +22,24 @@ _testmain.go
 *.exe
 *.test
 gin-bin
+
+# Ember and al.
+
+# compiled output
+/dist
+/tmp
+
+# dependencies
+/node_modules
+/vendor/*
+
+# misc
+/.sass-cache
+/connect.lock
+/libpeerconnection.log
+.DS_Store
+Thumbs.db
+/coverage/*
+npm-debug.log
+testem.log
+
