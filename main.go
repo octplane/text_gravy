@@ -11,6 +11,7 @@ import (
   "net/http"
   "os"
   "strconv"
+  "strings"
 )
 
 var (
@@ -40,10 +41,43 @@ type PhotoInfo struct {
   Title       string        `json:"title"`
   Description string        `json:"description"`
   Dates       flickgo.Dates `xml:"dates"`
-  Tags        []flickgo.Tag `xml:"tags>tag"`
   Urls        []flickgo.Url `xml:"urls>url"`
   Thumb       string        `json:"thumb"`
   Large       string        `json:"large"`
+  TagsRef     []int64       `json:"tags"`
+}
+
+type Tag struct {
+  ID        int64  `json:"id"`
+  Text      string `json:"text"`
+  Photoinfo string `json:"photoinfo_id"`
+}
+
+func TagsToTags(tags []flickgo.Tag, photoinfo string) []Tag {
+  ret := make([]Tag, 0, 20)
+  var err error
+  var v int64
+
+  for _, tag := range tags {
+    ids := strings.Split(tag.ID, "-")
+    v, err = strconv.ParseInt(ids[len(ids)-1], 10, 64)
+    if err == nil {
+      ret = append(ret, Tag{
+        ID:        v,
+        Text:      tag.Text,
+        Photoinfo: photoinfo})
+    }
+  }
+  return ret
+}
+
+func TagsToId(tags []Tag) []int64 {
+  ret := make([]int64, 0, 20)
+
+  for _, tag := range tags {
+    ret = append(ret, tag.ID)
+  }
+  return ret
 }
 
 func photoHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,21 +89,26 @@ func photoHandler(w http.ResponseWriter, r *http.Request) {
     panic(err)
   }
 
+  tags := TagsToTags(finfo.Tags, finfo.ID)
+
   info := PhotoInfo{
-    finfo.ID,
-    finfo.Rotation,
-    finfo.License,
-    finfo.Title,
-    finfo.Description,
-    finfo.Dates,
-    finfo.Tags,
-    finfo.Urls,
-    finfo.Photo.URL("n"),
-    finfo.Photo.URL("z"),
+    ID:          finfo.ID,
+    Rotation:    finfo.Rotation,
+    License:     finfo.License,
+    Title:       finfo.Title,
+    Description: finfo.Description,
+    Dates:       finfo.Dates,
+    Urls:        finfo.Urls,
+    Thumb:       finfo.Photo.URL("n"),
+    Large:       finfo.Photo.URL("z"),
+    TagsRef:     TagsToId(tags),
   }
 
   // Serialize the modified kitten to JSON
-  j, err := json.Marshal(map[string]*PhotoInfo{"photoInfo": &info})
+  j, err := json.MarshalIndent(map[string]interface{}{
+    "tags":      tags,
+    "photoinfo": &info,
+  }, "", " ")
   if err != nil {
     panic(err)
   }
@@ -136,7 +175,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
   }
 
   // Serialize the modified kitten to JSON
-  j, err := json.Marshal(map[string][]Photo{"photos": photos})
+  j, err := json.MarshalIndent(map[string][]Photo{"photos": photos}, "", " ")
   if err != nil {
     panic(err)
   }
@@ -158,12 +197,17 @@ func main() {
 
   r := mux.NewRouter()
   r.HandleFunc("/api/v1/photos/{photo_id:[a-z0-9]+}", searchHandler).Methods("GET")
-  r.HandleFunc("/api/v1/photoInfos/{photo_id:[a-z0-9]+}", photoHandler).Methods("GET")
+  r.HandleFunc("/api/v1/photoinfos/{photo_id:[a-z0-9]+}", photoHandler).Methods("GET")
   r.HandleFunc("/api/v1/photos", searchHandler).Methods("GET")
 
   http.Handle("/api/", r)
   http.Handle("/", http.FileServer(http.Dir("./public/")))
 
-  log.Println("Listening on 8080")
-  http.ListenAndServe(":8080", nil)
+  port := os.Getenv("PORT")
+
+  if port == "" {
+    port = "8080"
+  }
+  log.Printf("Listening on %s\n", port)
+  http.ListenAndServe(":"+port, nil)
 }
