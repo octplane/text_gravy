@@ -44,35 +44,30 @@ type PhotoInfo struct {
   Urls        []flickgo.Url `xml:"urls>url"`
   Thumb       string        `json:"thumb"`
   Large       string        `json:"large"`
-  TagsRef     []int64       `json:"tags"`
+  TagsRef     []string      `json:"tags"`
 }
 
 type Tag struct {
-  ID        int64  `json:"id"`
+  ID        string `json:"id"`
   Text      string `json:"text"`
   Photoinfo string `json:"photoinfo_id"`
 }
 
 func TagsToTags(tags []flickgo.Tag, photoinfo string) []Tag {
   ret := make([]Tag, 0, 20)
-  var err error
-  var v int64
 
   for _, tag := range tags {
     ids := strings.Split(tag.ID, "-")
-    v, err = strconv.ParseInt(ids[len(ids)-1], 10, 64)
-    if err == nil {
-      ret = append(ret, Tag{
-        ID:        v,
-        Text:      tag.Text,
-        Photoinfo: photoinfo})
-    }
+    ret = append(ret, Tag{
+      ID:        ids[len(ids)-1],
+      Text:      tag.Text,
+      Photoinfo: photoinfo})
   }
   return ret
 }
 
-func TagsToId(tags []Tag) []int64 {
-  ret := make([]int64, 0, 20)
+func TagsToId(tags []Tag) []string {
+  ret := make([]string, 0, 20)
 
   for _, tag := range tags {
     ret = append(ret, tag.ID)
