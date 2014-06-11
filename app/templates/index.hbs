@@ -1,27 +1,21 @@
-
-<script type="text/x-handlebars" data-template-name="index">
-
-<h3 class="query">{{query}}</h3>
+<h2>You searched for {{query}}</h2>
 <form {{action search on="submit"}} class="form-inline">
   {{input type="text" value=q}}
   <button type="submit" class="btn btn-primary">Search</button>
 </form>
 
-<ul class="thumbnails">
-{{#each photo in result}}
-
-  <li class="col-md-4">
+<div class="row">
+  {{#each photo in result}}
+  <div class="col-sm-6 col-md-4">
     {{#link-to 'photo' photo.id}}
-    <div {{bind-attr id="photo.id" }} class="thumbnail">
+    <div class="thumbnail">
       <img {{bind-attr src="photo.thumb"}}/>
       <div class="caption">
         {{photo.title}}
+        {{photo.width}}x{{photo.height}}
       </div>
     </div>
     {{/link-to}}
-  </li>
-
-{{/each}}
-</ul>
-
-</script>
+  </div>
+  {{/each}}
+</div>

@@ -28,10 +28,12 @@ func init() {
 }
 
 type Photo struct {
-  Id    string `json:"id"`
-  Title string `json:"title"`
-  Thumb string `json:"thumb"` // n
-  Large string `json:"large"` // z
+  Id     string `json:"id"`
+  Title  string `json:"title"`
+  Thumb  string `json:"thumb"` // n
+  Large  string `json:"large"` // z
+  Width  int    `json:"width"`
+  Height int    `json:"height"`
 }
 
 type PhotoInfo struct {
@@ -140,7 +142,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
     sparams["text"] = query
     sparams["sort"] = "relevance" //interestingness-desc"
     sparams["licence"] = "4,7"
-    //	sparams["others"] = "url_n,tags"
+    sparams["extras"] = "o_dims"
 
     var err error
     var sresponse *flickgo.SearchResponse
@@ -158,12 +160,18 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
       panic(err)
     }
 
+    var curPhoto flickgo.SearchPhoto
+
     for i := 0; i < int(math.Min(float64(resCount), float64(max))); i++ {
 
-      tempPhoto = Photo{Id: sresponse.Photos[i].ID,
-        Thumb: sresponse.Photos[i].URL("n"),
-        Large: sresponse.Photos[i].URL("z"),
-        Title: sresponse.Photos[i].Title,
+      curPhoto = sresponse.Photos[i]
+
+      tempPhoto = Photo{Id: curPhoto.ID,
+        Thumb:  curPhoto.URL("n"),
+        Large:  curPhoto.URL("z"),
+        Title:  curPhoto.Title,
+        Width:  curPhoto.Width,
+        Height: curPhoto.Height,
       }
       photos = append(photos, tempPhoto)
     }
